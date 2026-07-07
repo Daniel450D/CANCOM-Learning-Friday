@@ -53,7 +53,22 @@ Die `.env` ist per `.gitignore` ausgeschlossen und landet **nicht** auf GitHub.
 
 ## 4. Deployen (extern erreichbar)
 
-### Variante A: Vercel (empfohlen)
+### Variante A: GitHub Pages (aktuell im Einsatz)
+
+Das Repo enthält einen Workflow (`.github/workflows/deploy.yml`), der bei jedem Push auf `main` automatisch baut und deployt. Einmalig einrichten:
+
+1. Im Repo: **Settings → Pages → Build and deployment → Source: GitHub Actions** wählen.
+2. Im Repo: **Settings → Secrets and variables → Actions → New repository secret** – drei Secrets anlegen:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+   - `VITE_ADMIN_PASSWORD`
+3. Einen Commit pushen (oder unter **Actions** den Workflow „Deploy to GitHub Pages" manuell starten).
+
+Die App ist dann unter <https://daniel450d.github.io/CANCOM-Learning-Friday/> erreichbar, der Admin-Bereich unter <https://daniel450d.github.io/CANCOM-Learning-Friday/#/admin> (Hash-Routing, weil GitHub Pages keine Server-Rewrites kann).
+
+**Wichtig:** Der `base`-Pfad in `vite.config.js` muss exakt dem Repo-Namen entsprechen (`/CANCOM-Learning-Friday/`, Groß-/Kleinschreibung beachten). Wird das Repo umbenannt, diesen Wert mit anpassen.
+
+### Variante B: Vercel
 
 1. Auf <https://vercel.com> mit dem GitHub-Account **Daniel450D** anmelden.
 2. **Add New → Project** → Repo `cancom-learning-friday` importieren (Framework wird automatisch als Vite erkannt).
@@ -61,7 +76,7 @@ Die `.env` ist per `.gitignore` ausgeschlossen und landet **nicht** auf GitHub.
 4. **Deploy** klicken → die App ist unter `https://cancom-learning-friday.vercel.app` erreichbar.
 5. Damit die Route `/admin` beim direkten Aufruf funktioniert, liegt eine [`vercel.json`](./vercel.json) mit SPA-Rewrite im Repo.
 
-### Variante B: Netlify
+### Variante C: Netlify
 
 1. Auf <https://netlify.com> → **Add new site → Import an existing project** → GitHub-Repo wählen.
 2. Build command: `npm run build`, Publish directory: `dist`.

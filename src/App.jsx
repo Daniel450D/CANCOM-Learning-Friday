@@ -9,7 +9,7 @@ export default function App() {
       <header className="site-header">
         <div className="site-header-inner">
           <Link to="/" className="brand">
-            <img src="/cancom-logo.png" alt="CANCOM" className="brand-logo" />
+            <img src={`${import.meta.env.BASE_URL}cancom-logo.png`} alt="CANCOM" className="brand-logo" />
             <span className="brand-title">Learning&nbsp;Friday</span>
           </Link>
           <nav>
