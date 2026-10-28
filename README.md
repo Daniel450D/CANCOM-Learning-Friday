@@ -97,29 +97,50 @@ Alle Kategorien und Punktwerte stehen zentral in [`src/config/categories.js`](./
 | Agent gebaut und allen bereitgestellt | 4 |
 | Learning Friday / Session selbst durchgeführt | 6 |
 
-## 6. Admin-Bereich (`/admin`)
+## 6. Mitarbeiterbereich (`/mitarbeiter`)
+
+Jeder Mitarbeiter hat einen eigenen, passwortgeschützten Bereich: `…/#/mitarbeiter`
+
+- **Erster Login:** Name aus der Liste wählen und ein persönliches Passwort festlegen (mind. 6 Zeichen). Namen ohne Passwort sind in der Auswahl mit „(noch kein Passwort)" markiert.
+- **Punktestand:** Die eigene Gesamtpunktzahl und alle eigenen Einträge auf einen Blick.
+- **Eigene Einträge bearbeiten/löschen:** Kategorie und Kommentar sind änderbar, die Punkte ergeben sich automatisch aus der Kategorie. Startpunkte und Admin-Korrekturen sind gesperrt und nur im Admin-Bereich änderbar.
+- **Passwort ändern:** Jederzeit im eigenen Bereich möglich.
+- **Passwort vergessen:** Ein Admin setzt es im Admin-Bereich zurück, danach legt die Person beim nächsten Login ein neues fest.
+
+Gespeichert wird nur ein SHA-256-Hash des Passworts (siehe [`src/lib/password.js`](./src/lib/password.js)), nie der Klartext.
+
+**Einmalig nötig:** [`migration-mitarbeiterbereich.sql`](./migration-mitarbeiterbereich.sql) im Supabase SQL Editor ausführen. Bei einem frisch aufgesetzten Projekt ist das schon in `schema.sql` enthalten.
+
+## 7. Admin-Bereich (`/admin`)
 
 - **Startpunkte & Korrekturen:** Ist-Stand aus der bisherigen händischen Zählung übertragen oder Punkte korrigieren (auch negativ, z. B. −3 bei falscher Kategorie). Beides wird als normaler Eintrag mit spezieller Kategorie gespeichert – der Punktestand ist immer die Summe aller Einträge.
 - **Alle Einträge:** Übersicht, filterbar pro Mitarbeiter, jeder Eintrag kann bearbeitet oder gelöscht werden.
-- **Mitarbeiter verwalten:** Hinzufügen und Entfernen (beim Entfernen werden zugehörige Einträge mitgelöscht).
+- **Mitarbeiter verwalten:** Hinzufügen und Entfernen (beim Entfernen werden zugehörige Einträge mitgelöscht) sowie **Passwort zurücksetzen** für den Mitarbeiterbereich.
 
 ### Sicherheitshinweis
 
 Das Admin-Passwort wird als `VITE_ADMIN_PASSWORD` gesetzt und clientseitig geprüft. Vite bündelt `VITE_`-Variablen in den ausgelieferten JavaScript-Code – das Passwort ist also für technisch versierte Nutzer im Bundle auffindbar, und der anon-Key erlaubt Schreibzugriff auf die Tabellen. Für ein internes, nicht öffentlich beworbenes Team-Tool ist das wie besprochen ausreichend; ein echtes Auth-System (Supabase Auth) lässt sich später nachrüsten, falls nötig.
 
+Dasselbe gilt für die Mitarbeiter-Passwörter: Sie werden als SHA-256-Hash gespeichert, also nicht im Klartext – aber die Prüfung läuft im Browser, und wer den anon-Key aus dem Bundle liest, kann die Tabellen auch direkt ansprechen. Der Schutz verhindert zuverlässig versehentliche Fremdzugriffe im Team, ist aber keine Hürde gegen jemanden, der es gezielt darauf anlegt.
+
+**Umbauweg auf echtes Auth (falls später nötig):** In Supabase **Authentication → Providers** E-Mail aktivieren, für jeden Mitarbeiter einen Account anlegen, `employees` um eine `user_id uuid references auth.users` erweitern, die weit offenen anon-Policies durch Policies auf `auth.uid()` ersetzen (z. B. `entries` nur schreibbar, wenn `employee_id` zum eingeloggten User gehört) und im Frontend `supabase.auth.signInWithPassword()` statt der Hash-Prüfung verwenden.
+
 ## Projektstruktur
 
 ```
-├── schema.sql                  # Supabase-Tabellen + RLS + Mitarbeiter-Seed
-├── .env.example                # Vorlage für die Umgebungsvariablen
-├── vercel.json                 # SPA-Rewrite für Vercel
+├── schema.sql                        # Supabase-Tabellen + RLS + Mitarbeiter-Seed
+├── migration-mitarbeiterbereich.sql  # Nachrüst-Migration für den Mitarbeiterbereich
+├── .env.example                      # Vorlage für die Umgebungsvariablen
+├── vercel.json                       # SPA-Rewrite für Vercel
 ├── public/
-│   ├── cancom-logo.png         # Offizielles CANCOM Logo
-│   └── _redirects              # SPA-Redirect für Netlify
+│   ├── cancom-logo.png               # Offizielles CANCOM Logo
+│   └── _redirects                    # SPA-Redirect für Netlify
 └── src/
-    ├── config/categories.js    # Zentrales Punkteschema
-    ├── lib/supabase.js         # Supabase-Client
-    ├── pages/Home.jsx          # Mitarbeiter-Ansicht (Formular + Rangliste)
-    ├── pages/Admin.jsx         # Admin-Bereich
-    └── components/             # EntryForm, Leaderboard
+    ├── config/categories.js          # Zentrales Punkteschema
+    ├── lib/supabase.js               # Supabase-Client
+    ├── lib/password.js               # SHA-256-Hashing der Mitarbeiter-Passwörter
+    ├── pages/Home.jsx                # Startseite (Formular + Rangliste)
+    ├── pages/Mitarbeiter.jsx         # Persönlicher Bereich (Login, eigene Punkte)
+    ├── pages/Admin.jsx               # Admin-Bereich
+    └── components/                   # EntryForm, Leaderboard
 ```

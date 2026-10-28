@@ -413,7 +413,7 @@ select:focus-visible, input:focus-visible, textarea:focus-visible, .btn:focus-vi
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 0.4rem;
 }
 
@@ -439,6 +439,47 @@ select:focus-visible, input:focus-visible, textarea:focus-visible, .btn:focus-vi
   font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
 }
+
+.pw-badge {
+  display: inline-block;
+  margin-left: 0.45rem;
+  padding: 0.1rem 0.42rem;
+  border-radius: 999px;
+  background: var(--err-bg);
+  color: var(--err-ink);
+  font-size: 0.72rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+/* ---------- Mitarbeiterbereich ---------- */
+
+.head-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.login-hint { margin-top: 1rem; font-size: 0.85rem; }
+
+.score-card { text-align: center; padding: 1.6rem 1.2rem; }
+
+.score-label {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.score-value {
+  margin: 0.2rem 0 0.4rem;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: clamp(3rem, 10vw, 4.6rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.score-card .muted { margin: 0; }
+
+.locked-hint { font-size: 0.82rem; font-style: italic; }
 
 /* ---------- Reduced Motion ---------- */
 @media (prefers-reduced-motion: reduce) {

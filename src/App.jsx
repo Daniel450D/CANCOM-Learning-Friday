@@ -1,6 +1,7 @@
 import { Routes, Route, Link } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Admin from './pages/Admin.jsx'
+import Mitarbeiter from './pages/Mitarbeiter.jsx'
 import { supabaseConfigured } from './lib/supabase.js'
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
             <span className="brand-title">Learning&nbsp;Friday</span>
           </Link>
           <nav>
+            <Link to="/mitarbeiter" className="nav-link">Mein Bereich</Link>
             <Link to="/admin" className="nav-link">Admin</Link>
           </nav>
         </div>
@@ -28,6 +30,7 @@ export default function App() {
       <main className="site-main">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/mitarbeiter" element={<Mitarbeiter />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>

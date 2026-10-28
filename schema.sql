@@ -86,3 +86,15 @@ insert into employees (name) values
   ('Siraj Hasan'),
   ('Stefano Canali')
 on conflict (name) do nothing;
+
+-- ---------------------------------------------------------------------
+-- Mitarbeiterbereich: persönliches Passwort je Mitarbeiter
+-- (nur SHA-256-Hash, nie Klartext – siehe src/lib/password.js)
+-- ---------------------------------------------------------------------
+
+alter table employees
+  add column if not exists password_hash text,
+  add column if not exists password_set_at timestamptz;
+
+create policy "anon update employees" on employees
+  for update to anon using (true) with check (true);

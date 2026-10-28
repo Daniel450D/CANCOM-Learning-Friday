@@ -91,7 +91,7 @@ function AdminPanel({ onLogout }) {
   const loadData = useCallback(async () => {
     if (!supabaseConfigured) { setLoading(false); return }
     const [empRes, entryRes] = await Promise.all([
-      supabase.from('employees').select('id, name').order('name'),
+      supabase.from('employees').select('id, name, password_hash').order('name'),
       supabase
         .from('entries')
         .select('id, employee_id, category, points, note, created_at')
@@ -180,6 +180,21 @@ function AdminPanel({ onLogout }) {
     if (error) { flash('error', 'Anlegen fehlgeschlagen (Name evtl. schon vorhanden).'); return }
     setNewName('')
     flash('ok', `„${name}" hinzugefügt.`)
+    loadData()
+  }
+
+  async function resetPassword(emp) {
+    const ok = window.confirm(
+      `Passwort von „${emp.name}" zurücksetzen?\n\n` +
+      'Die Person legt beim nächsten Login im Mitarbeiterbereich ein neues Passwort fest.',
+    )
+    if (!ok) return
+    const { error } = await supabase
+      .from('employees')
+      .update({ password_hash: null, password_set_at: null })
+      .eq('id', emp.id)
+    if (error) { flash('error', 'Zurücksetzen fehlgeschlagen.'); return }
+    flash('ok', `Passwort von „${emp.name}" zurückgesetzt.`)
     loadData()
   }
 
@@ -359,8 +374,21 @@ function AdminPanel({ onLogout }) {
         <ul className="employee-list">
           {employees.map((emp) => (
             <li key={emp.id}>
-              <span>{emp.name}</span>
+              <span>
+                {emp.name}
+                {!emp.password_hash && <span className="pw-badge">kein Passwort</span>}
+              </span>
               <span className="employee-points">{totals.get(emp.id) ?? 0} P.</span>
+              <button
+                className="btn btn-small btn-ghost"
+                onClick={() => resetPassword(emp)}
+                disabled={!emp.password_hash}
+                title={emp.password_hash
+                  ? 'Passwort zurücksetzen'
+                  : 'Es ist noch kein Passwort gesetzt'}
+              >
+                Passwort zurücksetzen
+              </button>
               <button className="btn btn-small btn-danger" onClick={() => removeEmployee(emp)}>Entfernen</button>
             </li>
           ))}
